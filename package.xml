@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<package>
+  <name>PickAndPlace</name>
+  <version>0.0.0</version>
+  <description>The PickAndPlace package</description>
+
+  <maintainer email="5jonetzk@informatik.uni-hamburg.de">Yannick Jonetzko</maintainer>
+
+  <license>BSD</license>
+
+  <buildtool_depend>catkin</buildtool_depend>
+
+  <build_depend>roscpp</build_depend>
+  <build_depend>rospy</build_depend>
+  <build_depend>std_msgs</build_depend>
+  <build_depend>eigen</build_depend>
+
+  <run_depend>roscpp</run_depend>
+  <run_depend>rospy</run_depend>
+  <run_depend>std_msgs</run_depend>
+</package>
