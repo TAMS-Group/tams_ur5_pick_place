@@ -28,41 +28,44 @@ public:
     void executePick(){
         moveit::planning_interface::MoveGroup arm("arm");
         spawnObject();
-
+/*
         moveit_msgs::Grasp grasp;
         grasp.id = "grasp";
 
-        grasp.pre_grasp_posture.joint_names.resize(1, "s_model_finger_1_link_0");
+        grasp.pre_grasp_posture.joint_names.resize(1, "s_model_finger_1_joint_1");
         grasp.pre_grasp_posture.points.resize(1);
         grasp.pre_grasp_posture.points[0].positions.resize(1);
-        grasp.pre_grasp_posture.points[0].positions[0] = 1;
+        grasp.pre_grasp_posture.points[0].positions[0] = 0.0495296;
 
-        grasp.grasp_posture.joint_names.resize(1, "s_model_finger_1_link_0");
+        grasp.grasp_posture.joint_names.resize(1, "s_model_finger_1_joint_1");
         grasp.grasp_posture.points.resize(1);
         grasp.grasp_posture.points[0].positions.resize(1);
-        grasp.grasp_posture.points[0].positions[0] = -1;
+        grasp.grasp_posture.points[0].positions[0] = 0.924553;
 
         
         geometry_msgs::PoseStamped pose;
-        pose.header.frame_id = "object";
-        pose.pose.position.x = 0.0;
-        pose.pose.position.y = 0.0;
-        pose.pose.position.z = 0.1;
-        pose.pose.orientation.w = 1.0;
+        pose.header.frame_id = "world";
+        pose.pose.position.x = 0.736;
+        pose.pose.position.y = 0.709;
+        pose.pose.position.z = 0.14;
+        pose.pose.orientation.x = 0.215;
+        pose.pose.orientation.y = -0.674;
+        pose.pose.orientation.z = 0.215;
+        pose.pose.orientation.w = 0.674;
         grasp.grasp_pose = pose;
 
-        grasp.pre_grasp_approach.min_distance = 0.2;
-        grasp.pre_grasp_approach.desired_distance = 0.4;
+        grasp.pre_grasp_approach.min_distance = 0.0;
+        grasp.pre_grasp_approach.desired_distance = 0.0;
         grasp.pre_grasp_approach.direction.header.frame_id = "ft_fts_toolside";
         grasp.pre_grasp_approach.direction.vector.z = 1.0;
 
-        grasp.post_grasp_retreat.min_distance = 0.2;
-        grasp.post_grasp_retreat.desired_distance = 0.4;
+        grasp.post_grasp_retreat.min_distance = 0.0;
+        grasp.post_grasp_retreat.desired_distance = 0.0;
         grasp.post_grasp_retreat.direction.header.frame_id = "ft_fts_toolside";
         grasp.post_grasp_retreat.direction.vector.z = -1.0;
+*/
 
-
-        arm.pick("object", grasp);
+        arm.pick("object");
     }
 
     void spawnObject(){
