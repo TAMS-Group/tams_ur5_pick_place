@@ -109,6 +109,8 @@ public:
 
 int main(int argc, char** argv){
     ros::init(argc, argv, "PaPTest");
+    ros::AsyncSpinner spinner(1);
+    spinner.start();
     PickAndPlaceTest testClass;
     testClass.executePick();
     return 0;
