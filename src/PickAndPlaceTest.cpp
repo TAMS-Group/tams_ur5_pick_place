@@ -26,13 +26,10 @@ public:
     }
 
     void executePick(){
+
         moveit::planning_interface::MoveGroup arm("arm");
         moveit::planning_interface::MoveGroup gripper("gripper");
         
-        spawnObject();
-         
-        arm.setEndEffector("gripper");
-
         moveit_msgs::Grasp grasp;
         grasp.id = "grasp";
 
@@ -45,7 +42,7 @@ public:
         pose.pose.orientation.y = 0.5;
         pose.pose.orientation.z = -0.5;
         pose.pose.orientation.w = 0.5;
-        pose.pose.position.z += 0.1;
+        pose.pose.position.z = 0.1;
         grasp.grasp_pose = pose;
 
         grasp.pre_grasp_approach.min_distance = 0.02;
@@ -63,6 +60,42 @@ public:
         arm.pick("object", grasp);
     }
 
+    void executePlace(){
+
+        moveit::planning_interface::MoveGroup arm("arm");
+        moveit::planning_interface::MoveGroup gripper("gripper");
+
+        std::vector<moveit_msgs::PlaceLocation> location;
+
+        moveit_msgs::PlaceLocation place_location;
+        place_location.id = "place_location";
+
+        jointValuesToJointTrajectory(gripper.getNamedTargetValues("open"), place_location.post_place_posture);
+
+        geometry_msgs::PoseStamped pose;
+        pose.header.frame_id = "table_top";
+        pose.pose.orientation.w = 1;
+        pose.pose.position.x = -0.03;
+        pose.pose.position.y = 0.2;
+        pose.pose.position.z = 0.1;
+        place_location.place_pose = pose;
+
+        place_location.pre_place_approach.min_distance = 0.02;
+        place_location.pre_place_approach.desired_distance = 0.1;
+        place_location.pre_place_approach.direction.header.frame_id = "tool0";
+        place_location.pre_place_approach.direction.vector.x = 1.0;
+
+        place_location.post_place_retreat.min_distance = 0.02;
+        place_location.post_place_retreat.desired_distance = 0.1;
+        place_location.post_place_retreat.direction.header.frame_id = "table_top";
+        place_location.post_place_retreat.direction.vector.z = 1.0;
+
+        location.push_back(place_location);
+
+        arm.setSupportSurfaceName("table");
+        arm.place("object", location);
+    }
+
     void spawnObject(){
         moveit_msgs::ApplyPlanningScene srv;
         moveit_msgs::PlanningScene planning_scene;
@@ -70,7 +103,7 @@ public:
 
         moveit_msgs::CollisionObject object;
 
-        object.header.frame_id = "/table_top";
+        object.header.frame_id = "table_top";
         object.id = "object";
 
         shape_msgs::SolidPrimitive primitive;
@@ -111,7 +144,12 @@ int main(int argc, char** argv){
     ros::init(argc, argv, "PaPTest");
     ros::AsyncSpinner spinner(1);
     spinner.start();
+
     PickAndPlaceTest testClass;
+    testClass.spawnObject();
     testClass.executePick();
+    ROS_ERROR("PLACE");
+    ros::WallDuration(1.0).sleep();
+    testClass.executePlace();
     return 0;
 }
