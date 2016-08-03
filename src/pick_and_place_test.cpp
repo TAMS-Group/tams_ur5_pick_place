@@ -138,6 +138,26 @@ public:
            grasp_pose.points[0].positions.push_back(it->second);
        }
     }
+
+    void testPose(){
+
+        moveit::planning_interface::MoveGroup arm("arm");
+
+        geometry_msgs::PoseStamped pose;
+
+        pose.header.frame_id = "table_top";
+        pose.pose.orientation.x = 0.5;
+        pose.pose.orientation.y = 0.5;
+        pose.pose.orientation.z = -0.5;
+        pose.pose.orientation.w = 0.5;
+        pose.pose.position.x = 0.05;
+        pose.pose.position.y = 0.2;
+        pose.pose.position.z = 0.344;
+
+        arm.setPoseTarget(pose, "tool0");
+        arm.move();
+    }
+
 };
 
 int main(int argc, char** argv){
@@ -151,5 +171,6 @@ int main(int argc, char** argv){
     ROS_ERROR("PLACE");
     ros::WallDuration(1.0).sleep();
     testClass.executePlace();
+    //testClass.testPose();
     return 0;
 }

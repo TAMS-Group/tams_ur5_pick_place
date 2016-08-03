@@ -1,5 +1,5 @@
 cmake_minimum_required(VERSION 2.8.3)
-project(PickAndPlace)
+project(pick_and_place)
 
 find_package(catkin REQUIRED COMPONENTS
   roscpp
@@ -19,5 +19,5 @@ include_directories(
   ${catkin_INCLUDE_DIRS}
 )
 
-add_executable(PickAndPlaceTest src/PickAndPlaceTest.cpp)
-target_link_libraries(PickAndPlaceTest ${catkin_LIBRARIES})
+add_executable(pick_and_place_test src/pick_and_place_test.cpp)
+target_link_libraries(pick_and_place_test ${catkin_LIBRARIES})
