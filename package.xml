@@ -1,6 +1,6 @@
 <?xml version="1.0"?>
 <package>
-  <name>pick_and_place</name>
+  <name>tams_ur5_pick_place</name>
   <version>0.0.0</version>
   <description>The pick_and_place package</description>
 
@@ -15,9 +15,11 @@
   <build_depend>std_msgs</build_depend>
   <build_depend>eigen</build_depend>
   <build_depend>moveit_ros_planning_interface</build_depend>
+  <build_depend>tf</build_depend>
 
   <run_depend>roscpp</run_depend>
   <run_depend>rospy</run_depend>
   <run_depend>std_msgs</run_depend>
   <run_depend>moveit_ros_planning_interface</run_depend>
+  <run_depend>tf</run_depend>
 </package>
