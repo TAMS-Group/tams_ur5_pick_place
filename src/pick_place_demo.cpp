@@ -18,11 +18,20 @@ protected:
     ros::ServiceClient planning_scene_diff_client;
     ros::ServiceClient grasp_planning_service;
 
+
+    moveit::planning_interface::MoveGroup arm;
+    moveit::planning_interface::MoveGroup gripper;
+
     tf::TransformListener tf_listener;
     tf::StampedTransform transform;
 
+    double objectHeight;
+
 public:
-    PickPlaceDemo(){
+    PickPlaceDemo() : 
+        arm("arm"), 
+        gripper("gripper")
+    {
         planning_scene_diff_client = node_handle.serviceClient<moveit_msgs::ApplyPlanningScene>("apply_planning_scene");
         planning_scene_diff_client.waitForExistence();
     }
@@ -32,9 +41,6 @@ public:
 
     bool executePick(){
 
-        moveit::planning_interface::MoveGroup arm("arm");
-        moveit::planning_interface::MoveGroup gripper("gripper");
-        
         moveit_msgs::Grasp grasp;
         grasp.id = "grasp";
 
@@ -42,14 +48,15 @@ public:
         jointValuesToJointTrajectory(gripper.getNamedTargetValues("closed"), grasp.grasp_posture);
 
         geometry_msgs::PoseStamped pose;
-        pose.header.frame_id = "object";
+        pose.header.frame_id = "can";
         pose.pose.orientation.x = 0.5;
         pose.pose.orientation.y = 0.5;
         pose.pose.orientation.z = -0.5;
         pose.pose.orientation.w = 0.5;
+        pose.pose.position.z = objectHeight/2;
         grasp.grasp_pose = pose;
 
-        grasp.pre_grasp_approach.min_distance = 0.02;
+        grasp.pre_grasp_approach.min_distance = 0.08;
         grasp.pre_grasp_approach.desired_distance = 0.1;
         grasp.pre_grasp_approach.direction.header.frame_id = "tool0";
         grasp.pre_grasp_approach.direction.vector.x = 1.0;
@@ -61,7 +68,8 @@ public:
 
         arm.setSupportSurfaceName("table");
 
-        arm.pick("object", grasp);
+        if(!arm.pick("can", grasp))
+            return false;
 
         return true;
     }
@@ -70,9 +78,6 @@ public:
     //PLACE DOES NOT WORK YET!
 
 /*    void executePlace(){
-
-        moveit::planning_interface::MoveGroup arm("arm");
-        moveit::planning_interface::MoveGroup gripper("gripper");
 
         std::vector<moveit_msgs::PlaceLocation> location;
 
@@ -108,19 +113,20 @@ public:
 
     bool spawnObject(){
         try{
-            tf_listener.waitForTransform("table_top", "object", ros::Time(0), ros::Duration(10.0));
-            tf_listener.lookupTransform("table_top", "object", ros::Time(0), transform);
+            ros::Time time = ros::Time::now();
+            tf_listener.waitForTransform("table_top", "object", time, ros::Duration(2.0));
+            tf_listener.lookupTransform("table_top", "object", time, transform);
         }catch(tf::TransformException ex){
             return false;
         }
 
-        double objectHeight = transform.getOrigin().getZ();
+        objectHeight = transform.getOrigin().getZ();
         moveit_msgs::ApplyPlanningScene srv;
         moveit_msgs::PlanningScene planning_scene;
         planning_scene.is_diff = true;
 
         moveit_msgs::CollisionObject object;
-        object.header.frame_id = "table_top";
+        object.header.frame_id = "object";
         object.id = "can";
 
         shape_msgs::SolidPrimitive primitive;
@@ -144,17 +150,31 @@ public:
     }
 
     bool moveToStart(){
-        moveit::planning_interface::MoveGroup arm("arm");
 
         arm.setNamedTarget("start_grab_pose");
         return arm.move();
     }
 
     bool releaseObject(){
-        moveit::planning_interface::MoveGroup gripper("gripper");
 
-        gripper.setNamedTarget("closed");
+        gripper.setNamedTarget("open");
+        removeObject();
         return gripper.move();
+    }
+
+    void removeObject(){
+        moveit_msgs::PlanningScene planning_scene;
+
+        moveit_msgs::AttachedCollisionObject attached_collision_object;
+        attached_collision_object.object.id = "can";
+        attached_collision_object.object.operation = attached_collision_object.object.REMOVE;
+
+        planning_scene.robot_state.attached_collision_objects.push_back(attached_collision_object);
+        planning_scene.is_diff = true;
+        planning_scene.robot_state.is_diff = true;
+        moveit_msgs::ApplyPlanningScene srv;
+        srv.request.scene = planning_scene;
+        planning_scene_diff_client.call(srv);
     }
 
     void jointValuesToJointTrajectory(std::map<std::string, double> target_values, trajectory_msgs::JointTrajectory &grasp_pose){
@@ -171,7 +191,7 @@ public:
 };
 
 int main(int argc, char** argv){
-    ros::init(argc, argv, "PaPTest");
+    ros::init(argc, argv, "PaPDemo");
     ros::AsyncSpinner spinner(1);
     spinner.start();
 
@@ -182,23 +202,28 @@ int main(int argc, char** argv){
         count++;
         ROS_INFO_STREAM("Pick number " << count);
         if(!demo.spawnObject()){
-            ROS_INFO("No object detected");
-            break;
+            ROS_WARN("No object detected, please put object in the next 10 seconds on the table");
+            ros::Duration(10.0).sleep();
+            continue;
         }
 
         if(!demo.executePick()){
-            ROS_INFO("Pick failed");
-            break;
+            ROS_INFO("Pick failed, retry in 5 seconds");
+            ros::Duration(5.0).sleep();
+            continue;
         }
-
-        if(!demo.moveToStart()){
-            ROS_ERROR("Move to start pose failed");
-            break;
-        }
+        ROS_INFO("Gripper will release object in 5 seconds");
         ros::Duration(5.0).sleep();
 
         if(!demo.releaseObject()){
             ROS_ERROR("Release object failed");
+            break;
+        }
+
+        ROS_INFO("Arm moves to start position in 5 seconds");
+        ros::Duration(5.0).sleep();
+        if(!demo.moveToStart()){
+            ROS_ERROR("Move to start pose failed");
             break;
         }
         ros::Duration(10.0).sleep();
