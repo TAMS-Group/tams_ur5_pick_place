@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   moveit_ros_planning_interface
+  tf
 )
 
 find_package(cmake_modules REQUIRED)
