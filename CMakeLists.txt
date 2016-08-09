@@ -24,3 +24,6 @@ target_link_libraries(pick_and_place_test ${catkin_LIBRARIES})
 
 add_executable(pick_place_demo src/pick_place_demo.cpp)
 target_link_libraries(pick_place_demo ${catkin_LIBRARIES})
+
+add_executable(grasp_planning_service src/grasp_planning_service.cpp)
+target_link_libraries(grasp_planning_service ${catkin_LIBRARIES})
