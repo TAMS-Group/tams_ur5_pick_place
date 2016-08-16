@@ -26,37 +26,8 @@ public:
     }
 
     void executePick(){
-
         moveit::planning_interface::MoveGroup arm("arm");
-        moveit::planning_interface::MoveGroup gripper("gripper");
-        
-        moveit_msgs::Grasp grasp;
-        grasp.id = "grasp";
-
-        jointValuesToJointTrajectory(gripper.getNamedTargetValues("open"), grasp.pre_grasp_posture);
-        jointValuesToJointTrajectory(gripper.getNamedTargetValues("closed"), grasp.grasp_posture);
-
-        geometry_msgs::PoseStamped pose;
-        pose.header.frame_id = "object";
-        pose.pose.orientation.x = 0.5;
-        pose.pose.orientation.y = 0.5;
-        pose.pose.orientation.z = -0.5;
-        pose.pose.orientation.w = 0.5;
-        pose.pose.position.z = 0.1;
-        grasp.grasp_pose = pose;
-
-        grasp.pre_grasp_approach.min_distance = 0.02;
-        grasp.pre_grasp_approach.desired_distance = 0.1;
-        grasp.pre_grasp_approach.direction.header.frame_id = "tool0";
-        grasp.pre_grasp_approach.direction.vector.x = 1.0;
-
-        grasp.post_grasp_retreat.min_distance = 0.02;
-        grasp.post_grasp_retreat.desired_distance = 0.1;
-        grasp.post_grasp_retreat.direction.header.frame_id = "table_top";
-        grasp.post_grasp_retreat.direction.vector.z = 1.0;
-
         arm.setSupportSurfaceName("table");
-
         arm.pick("object");
     }
 
