@@ -107,17 +107,15 @@ public:
         object.id = "object";
 
         shape_msgs::SolidPrimitive primitive;
-        primitive.type = primitive.BOX;
-        primitive.dimensions.resize(3);
-        primitive.dimensions[0] = 0.05;
-        primitive.dimensions[1] = 0.05;
-        primitive.dimensions[2] = 0.20;
+        primitive.type = primitive.CYLINDER;
+        primitive.dimensions.push_back(0.2);
+        primitive.dimensions.push_back(0.04);
 
         geometry_msgs::Pose pose;
         pose.orientation.w = 1;
         pose.position.x = -0.03;
         pose.position.y = 0.2;
-        pose.position.z = primitive.dimensions[2]/2 + 0.0;
+        pose.position.z = primitive.dimensions[0]/2 + 0.0;
 
         object.primitives.push_back(primitive);
         object.primitive_poses.push_back(pose);

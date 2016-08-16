@@ -2,6 +2,7 @@
 #include <manipulation_msgs/GraspPlanning.h>
 
 #include <moveit/move_group_interface/move_group.h>
+#include <moveit/planning_scene_interface/planning_scene_interface.h>
 
 void jointValuesToJointTrajectory(std::map<std::string, double> target_values, sensor_msgs::JointState &grasp_pose)
 {
@@ -17,6 +18,24 @@ void jointValuesToJointTrajectory(std::map<std::string, double> target_values, s
 bool serviceCB(manipulation_msgs::GraspPlanning::Request  &req,
          manipulation_msgs::GraspPlanning::Response &res)
 {
+  moveit::planning_interface::PlanningSceneInterface psi;
+
+  std::vector<std::string> object_ids;
+  object_ids.push_back(req.collision_object_name);
+  std::map<std::string, moveit_msgs::CollisionObject> objects = psi.getObjects(object_ids);
+
+  if(objects.size() < 1){
+    ROS_ERROR_STREAM("Asked for grasps for the object '" << req.collision_object_name << "', but the object could not be found");
+    res.error_code.value = res.error_code.OTHER_ERROR;
+    return true;
+  }
+
+  if(objects[req.collision_object_name].primitives[0].type != objects[req.collision_object_name].primitives[0].CYLINDER){
+    ROS_ERROR_STREAM("Asked for grasps for the object '" << req.collision_object_name << "', but the object is no cylinder");
+    res.error_code.value = res.error_code.OTHER_ERROR;
+    return true;
+  }
+
   moveit::planning_interface::MoveGroup arm(req.arm_name);
   moveit::planning_interface::MoveGroup gripper(arm.getRobotModel()->getEndEffectors()[0]->getName());
 
@@ -32,7 +51,7 @@ bool serviceCB(manipulation_msgs::GraspPlanning::Request  &req,
   pose.pose.orientation.y = 0.5;
   pose.pose.orientation.z = -0.5;
   pose.pose.orientation.w = 0.5;
-  pose.pose.position.z = 0.1;
+  pose.pose.position.z = objects[req.collision_object_name].primitives[0].dimensions[0]/2;
   grasp.grasp_pose = pose;
 
   grasp.approach.min_distance = 0.02;
