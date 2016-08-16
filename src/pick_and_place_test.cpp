@@ -57,7 +57,7 @@ public:
 
         arm.setSupportSurfaceName("table");
 
-        arm.pick("object", grasp);
+        arm.pick("object");
     }
 
     void executePlace(){
