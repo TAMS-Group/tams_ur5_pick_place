@@ -121,7 +121,7 @@ public:
 
     bool moveToStart(){
 
-        arm.setNamedTarget("start_grab_pose");
+        arm.setNamedTarget("folded");
         return arm.move();
     }
 
@@ -170,16 +170,22 @@ int main(int argc, char** argv){
     int count = 0;
     while(true){
         count++;
+        ROS_INFO("Arm moves to start position");
+        if(!demo.moveToStart()){
+            ROS_ERROR("Move to start pose failed");
+            break;
+        }
+        ros::Duration(5.0).sleep();
+
         ROS_INFO_STREAM("Pick number " << count);
         if(!demo.spawnObject()){
             ROS_WARN("No object detected, please put object in the next 10 seconds on the table");
-            ros::Duration(10.0).sleep();
+            ros::Duration(5.0).sleep();
             continue;
         }
 
         if(!demo.executePick()){
             ROS_INFO("Pick failed, retry in 5 seconds");
-            ros::Duration(5.0).sleep();
             continue;
         }
         ROS_INFO("Gripper will release object in 5 seconds");
@@ -190,13 +196,7 @@ int main(int argc, char** argv){
             break;
         }
 
-        ROS_INFO("Arm moves to start position in 5 seconds");
         ros::Duration(5.0).sleep();
-        if(!demo.moveToStart()){
-            ROS_ERROR("Move to start pose failed");
-            break;
-        }
-        ros::Duration(10.0).sleep();
     }
     return 0;
 }
