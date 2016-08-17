@@ -6,6 +6,7 @@ find_package(catkin REQUIRED COMPONENTS
   rospy
   std_msgs
   moveit_ros_planning_interface
+  tf
 )
 
 find_package(cmake_modules REQUIRED)
@@ -24,3 +25,6 @@ target_link_libraries(pick_and_place_test ${catkin_LIBRARIES})
 
 add_executable(pick_place_demo src/pick_place_demo.cpp)
 target_link_libraries(pick_place_demo ${catkin_LIBRARIES})
+
+add_executable(grasp_planning_service src/grasp_planning_service.cpp)
+target_link_libraries(grasp_planning_service ${catkin_LIBRARIES})
