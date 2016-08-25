@@ -54,12 +54,12 @@ bool serviceCB(manipulation_msgs::GraspPlanning::Request  &req,
   pose.pose.position.z = objects[req.collision_object_name].primitives[0].dimensions[0]/2;
   grasp.grasp_pose = pose;
 
-  grasp.approach.min_distance = 0.02;
+  grasp.approach.min_distance = 0.08;
   grasp.approach.desired_distance = 0.1;
   grasp.approach.direction.header.frame_id = "tool0";
   grasp.approach.direction.vector.x = 1.0;
 
-  grasp.retreat.min_distance = 0.02;
+  grasp.retreat.min_distance = 0.08;
   grasp.retreat.desired_distance = 0.1;
   grasp.retreat.direction.header.frame_id = arm.getPlanningFrame();
   grasp.retreat.direction.vector.z = 1.0;
