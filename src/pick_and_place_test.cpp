@@ -144,10 +144,13 @@ int main(int argc, char** argv){
     ros::AsyncSpinner spinner(1);
     spinner.start();
 
+    ROS_INFO("Starting Test");
     PickAndPlaceTest testClass;
+    ROS_INFO("Spawn Object");
     testClass.spawnObject();
+    ROS_INFO("Pick Object");
     testClass.executePick();
-    ROS_ERROR("PLACE");
+    ROS_INFO("Place Object");
     ros::WallDuration(1.0).sleep();
     testClass.executePlace();
     //testClass.testPose();
