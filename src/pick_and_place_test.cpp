@@ -4,6 +4,7 @@
 #include <moveit/move_group_interface/move_group.h>
 
 #include <moveit_msgs/CollisionObject.h>
+#include <moveit_msgs/AttachedCollisionObject.h>
 #include <moveit_msgs/ApplyPlanningScene.h>
 #include <moveit_msgs/Grasp.h>
 
@@ -71,6 +72,7 @@ public:
         moveit_msgs::ApplyPlanningScene srv;
         moveit_msgs::PlanningScene planning_scene;
         planning_scene.is_diff = true;
+        planning_scene.robot_state.is_diff = true;
 
         moveit_msgs::CollisionObject object;
 
@@ -90,9 +92,17 @@ public:
 
         object.primitives.push_back(primitive);
         object.primitive_poses.push_back(pose);
+
+        // add object to scene
         object.operation = object.ADD;
         planning_scene.world.collision_objects.push_back(object);
-        
+
+        // remove attached object in case it is attached
+        moveit_msgs::AttachedCollisionObject aco;
+        object.operation = object.REMOVE;
+        aco.object = object;
+        planning_scene.robot_state.attached_collision_objects.push_back(aco);
+
         srv.request.scene = planning_scene;
         planning_scene_diff_client.call(srv);
     }
