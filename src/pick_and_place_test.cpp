@@ -26,10 +26,10 @@ public:
     ~PickAndPlaceTest(){
     }
 
-    void executePick(){
+    bool executePick(){
         moveit::planning_interface::MoveGroup arm("arm");
         arm.setSupportSurfaceName("table");
-        arm.pick("object");
+        return arm.pick("object");
     }
 
     void executePlace(){
@@ -149,10 +149,11 @@ int main(int argc, char** argv){
     ROS_INFO("Spawn Object");
     testClass.spawnObject();
     ROS_INFO("Pick Object");
-    testClass.executePick();
-    ROS_INFO("Place Object");
-    ros::WallDuration(1.0).sleep();
-    testClass.executePlace();
+    if(testClass.executePick()){
+      ROS_INFO("Place Object");
+      ros::WallDuration(1.0).sleep();
+      testClass.executePlace();
+    }
     //testClass.testPose();
     return 0;
 }
