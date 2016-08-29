@@ -28,6 +28,7 @@ public:
 
     bool executePick(){
         moveit::planning_interface::MoveGroup arm("arm");
+        arm.setPlanningTime(20.0);
         arm.setSupportSurfaceName("table");
         return arm.pick("object");
     }
