@@ -4,6 +4,7 @@
 #include <moveit/move_group_interface/move_group.h>
 
 #include <moveit_msgs/CollisionObject.h>
+#include <moveit_msgs/AttachedCollisionObject.h>
 #include <moveit_msgs/ApplyPlanningScene.h>
 #include <moveit_msgs/Grasp.h>
 
@@ -25,10 +26,11 @@ public:
     ~PickAndPlaceTest(){
     }
 
-    void executePick(){
+    bool executePick(){
         moveit::planning_interface::MoveGroup arm("arm");
+        arm.setPlanningTime(20.0);
         arm.setSupportSurfaceName("table");
-        arm.pick("object");
+        return arm.pick("object");
     }
 
     void executePlace(){
@@ -71,6 +73,7 @@ public:
         moveit_msgs::ApplyPlanningScene srv;
         moveit_msgs::PlanningScene planning_scene;
         planning_scene.is_diff = true;
+        planning_scene.robot_state.is_diff = true;
 
         moveit_msgs::CollisionObject object;
 
@@ -90,9 +93,17 @@ public:
 
         object.primitives.push_back(primitive);
         object.primitive_poses.push_back(pose);
+
+        // add object to scene
         object.operation = object.ADD;
         planning_scene.world.collision_objects.push_back(object);
-        
+
+        // remove attached object in case it is attached
+        moveit_msgs::AttachedCollisionObject aco;
+        object.operation = object.REMOVE;
+        aco.object = object;
+        planning_scene.robot_state.attached_collision_objects.push_back(aco);
+
         srv.request.scene = planning_scene;
         planning_scene_diff_client.call(srv);
     }
@@ -134,12 +145,16 @@ int main(int argc, char** argv){
     ros::AsyncSpinner spinner(1);
     spinner.start();
 
+    ROS_INFO("Starting Test");
     PickAndPlaceTest testClass;
+    ROS_INFO("Spawn Object");
     testClass.spawnObject();
-    testClass.executePick();
-    ROS_ERROR("PLACE");
-    ros::WallDuration(1.0).sleep();
-    testClass.executePlace();
+    ROS_INFO("Pick Object");
+    if(testClass.executePick()){
+      ROS_INFO("Place Object");
+      ros::WallDuration(1.0).sleep();
+      testClass.executePlace();
+    }
     //testClass.testPose();
     return 0;
 }
