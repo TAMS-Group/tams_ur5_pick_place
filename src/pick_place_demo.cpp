@@ -27,6 +27,8 @@ protected:
 
     double objectHeight;
 
+    geometry_msgs::PoseStamped place_pose;
+
 public:
     PickPlaceDemo() : 
         arm("arm"), 
@@ -113,6 +115,15 @@ public:
         pose.position.z = -objectHeight/2;
         object.primitive_poses.push_back(pose);
 
+        place_pose.header.frame_id = "table_top";
+        place_pose.pose.orientation.x = 0.5;
+        place_pose.pose.orientation.y = 0.5;
+        place_pose.pose.orientation.z = -0.5;
+        place_pose.pose.orientation.w = 0.5;
+        place_pose.pose.position.x = transform.getOrigin().getX();
+        place_pose.pose.position.y = transform.getOrigin().getY();
+        place_pose.pose.position.z = transform.getOrigin().getZ() + 0.005;
+
         object.operation = object.ADD;
         planning_scene.world.collision_objects.push_back(object);
 
@@ -143,14 +154,20 @@ public:
         return true;
     }
 
-        arm.setNamedTarget("folded");
+    bool placeStub(){
+        arm.setPoseTarget(place_pose,"s_model_tool0");
         return arm.move();
+        return false;
     }
 
     bool releaseObject(){
 
         gripper.setNamedTarget("open");
         return gripper.move();
+    }
+
+    void resetPlacePose(){
+        place_pose = geometry_msgs::PoseStamped();
     }
 
     void detachObject(){
@@ -209,8 +226,7 @@ int main(int argc, char** argv){
             ROS_ERROR("Move to start pose failed");
             continue;
         }
-        ros::Duration(5.0).sleep();
-
+        demo.resetPlacePose();
         ROS_INFO_STREAM("Pick number " << count);
         if(!demo.spawnObject()){
             ROS_WARN("No object detected, please put object in the next 10 seconds on the table");
@@ -220,10 +236,15 @@ int main(int argc, char** argv){
 
         if(!demo.executePick()){
             ROS_INFO("Pick failed, retry in 5 seconds");
+            ros::Duration(5.0).sleep();
             continue;
         }
-        ROS_INFO("Gripper will release object in 5 seconds");
-        ros::Duration(5.0).sleep();
+        ros::Duration(1.0).sleep();
+
+        if(!demo.placeStub()){
+            ROS_ERROR("Place failed");
+            break;
+        }
 
         if(!demo.releaseObject()){
             ROS_ERROR("Release object failed");
