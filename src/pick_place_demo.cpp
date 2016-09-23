@@ -6,6 +6,7 @@
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/ApplyPlanningScene.h>
 #include <moveit_msgs/Grasp.h>
+#include <moveit_msgs/GetPlanningScene.h>
 
 #include <manipulation_msgs/GraspPlanning.h>
 
@@ -16,8 +17,7 @@ class PickPlaceDemo{
 protected:
     ros::NodeHandle node_handle;
     ros::ServiceClient planning_scene_diff_client;
-    ros::ServiceClient grasp_planning_service;
-
+    ros::ServiceClient get_planning_scene_client;
 
     moveit::planning_interface::MoveGroup arm;
     moveit::planning_interface::MoveGroup gripper;
@@ -34,6 +34,9 @@ public:
     {
         planning_scene_diff_client = node_handle.serviceClient<moveit_msgs::ApplyPlanningScene>("apply_planning_scene");
         planning_scene_diff_client.waitForExistence();
+        get_planning_scene_client = node_handle.serviceClient<moveit_msgs::GetPlanningScene>("get_planning_scene");
+        get_planning_scene_client.waitForExistence();
+
     }
 
     ~PickPlaceDemo(){
@@ -120,6 +123,25 @@ public:
     }
 
     bool moveToStart(){
+        moveit_msgs::GetPlanningScene::Request request;
+        moveit_msgs::GetPlanningScene::Response response;
+
+        request.components.components = request.components.ROBOT_STATE;
+
+        get_planning_scene_client.call(request, response);
+
+        if(!similarJointStates(response.scene.robot_state.joint_state, arm.getNamedTargetValues("folded"))){
+            ROS_INFO("bewege zu startzustand");
+            arm.setNamedTarget("folded");
+            if(arm.move()){
+                ros::Duration(5.0).sleep();
+                return true;
+            }
+            else
+                return false;
+        }
+        return true;
+    }
 
         arm.setNamedTarget("folded");
         return arm.move();
@@ -128,11 +150,10 @@ public:
     bool releaseObject(){
 
         gripper.setNamedTarget("open");
-        removeObject();
         return gripper.move();
     }
 
-    void removeObject(){
+    void detachObject(){
         moveit_msgs::PlanningScene planning_scene;
 
         moveit_msgs::AttachedCollisionObject attached_collision_object;
@@ -158,6 +179,19 @@ public:
        }
     }
 
+    bool similarJointStates(sensor_msgs::JointState joint_states, std::map<std::string, double> joint_values){
+        for(int i=0; i < joint_states.name.size(); i++){
+            if(joint_values.find(joint_states.name[i]) != joint_values.end()){
+                double rad_diff = fabs(joint_states.position[i] - joint_values.at(joint_states.name[i]));
+                if(rad_diff > 0.01){
+                    return false;
+                }
+            }
+        }
+        return true;
+    }
+
+
 };
 
 int main(int argc, char** argv){
@@ -173,7 +207,7 @@ int main(int argc, char** argv){
         ROS_INFO("Arm moves to start position");
         if(!demo.moveToStart()){
             ROS_ERROR("Move to start pose failed");
-            break;
+            continue;
         }
         ros::Duration(5.0).sleep();
 
@@ -196,7 +230,8 @@ int main(int argc, char** argv){
             break;
         }
 
-        ros::Duration(5.0).sleep();
+        demo.detachObject();
+
     }
     return 0;
 }
