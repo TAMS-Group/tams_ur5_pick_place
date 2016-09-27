@@ -28,3 +28,6 @@ target_link_libraries(pick_place_demo ${catkin_LIBRARIES})
 
 add_executable(grasp_planning_service src/grasp_planning_service.cpp)
 target_link_libraries(grasp_planning_service ${catkin_LIBRARIES})
+
+add_executable(plan_grasps_service src/plan_grasps_service.cpp)
+target_link_libraries(plan_grasps_service ${catkin_LIBRARIES})
