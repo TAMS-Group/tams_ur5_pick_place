@@ -8,8 +8,6 @@
 #include <moveit_msgs/Grasp.h>
 #include <moveit_msgs/GetPlanningScene.h>
 
-#include <manipulation_msgs/GraspPlanning.h>
-
 #include <tf/transform_listener.h>
 
 class PickPlaceDemo{
@@ -46,7 +44,7 @@ public:
 
     bool executePick(){
         arm.setSupportSurfaceName("table");
-        return arm.pick("can");
+        return arm.planGraspsAndPick("can");
     }
 
     
