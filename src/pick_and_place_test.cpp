@@ -16,9 +16,12 @@ protected:
     ros::NodeHandle node_handle;
     ros::ServiceClient planning_scene_diff_client;
     ros::ServiceClient grasp_planning_service;
+    moveit::planning_interface::MoveGroup arm;
 
 public:
-    PickAndPlaceTest(){
+    PickAndPlaceTest() :
+        arm("arm")
+    {
         planning_scene_diff_client = node_handle.serviceClient<moveit_msgs::ApplyPlanningScene>("apply_planning_scene");
         planning_scene_diff_client.waitForExistence();
     }
@@ -27,15 +30,19 @@ public:
     }
 
     bool executePick(){
-        moveit::planning_interface::MoveGroup arm("arm");
         arm.setPlanningTime(20.0);
         arm.setSupportSurfaceName("table");
-        return arm.pick("object");
+        return arm.planGraspsAndPick("object");
+    }
+
+    bool executePick(moveit_msgs::CollisionObject &object){
+        arm.setPlanningTime(20.0);
+        arm.setSupportSurfaceName("table");
+        return arm.planGraspsAndPick(object);
     }
 
     void executePlace(){
 
-        moveit::planning_interface::MoveGroup arm("arm");
         moveit::planning_interface::MoveGroup gripper("gripper");
 
         std::vector<moveit_msgs::PlaceLocation> location;
@@ -69,7 +76,7 @@ public:
         arm.place("object", location);
     }
 
-    void spawnObject(){
+    moveit_msgs::CollisionObject spawnObject(){
         moveit_msgs::ApplyPlanningScene srv;
         moveit_msgs::PlanningScene planning_scene;
         planning_scene.is_diff = true;
@@ -106,6 +113,8 @@ public:
 
         srv.request.scene = planning_scene;
         planning_scene_diff_client.call(srv);
+
+        return object;
     }
 
     void jointValuesToJointTrajectory(std::map<std::string, double> target_values, trajectory_msgs::JointTrajectory &grasp_pose){
@@ -120,8 +129,6 @@ public:
     }
 
     void testPose(){
-
-        moveit::planning_interface::MoveGroup arm("arm");
 
         geometry_msgs::PoseStamped pose;
 
@@ -148,13 +155,12 @@ int main(int argc, char** argv){
     ROS_INFO("Starting Test");
     PickAndPlaceTest testClass;
     ROS_INFO("Spawn Object");
-    testClass.spawnObject();
+
+    moveit_msgs::CollisionObject object = testClass.spawnObject();
+
     ROS_INFO("Pick Object");
-    if(testClass.executePick()){
-      ROS_INFO("Place Object");
-      ros::WallDuration(1.0).sleep();
-      testClass.executePlace();
-    }
-    //testClass.testPose();
+    testClass.executePick();
+    //testClass.executePick(object);
+
     return 0;
 }
