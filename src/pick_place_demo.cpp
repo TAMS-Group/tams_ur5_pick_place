@@ -217,7 +217,7 @@ int main(int argc, char** argv){
     PickPlaceDemo demo;
 
     int count = 0;
-    while(true){
+    while(ros::ok()){
         count++;
         ROS_INFO("Arm moves to start position");
         if(!demo.moveToStart()){
