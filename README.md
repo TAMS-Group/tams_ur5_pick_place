@@ -1,7 +1,7 @@
 tams_ur5_pick_place
 ======
 
-This reposetory provides a demo for pick and place using tams' lab setup with the ur5.
+This repository provides a demo for pick and place using tams' lab setup with the ur5.
 
 PLACE IS NOT YET SUPPORTED!
 
