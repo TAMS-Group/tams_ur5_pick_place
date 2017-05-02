@@ -36,7 +36,7 @@ bool serviceCB(moveit_msgs::GraspPlanning::Request &req, moveit_msgs::GraspPlann
 
   grasp.pre_grasp_approach.min_distance = 0.08;
   grasp.pre_grasp_approach.desired_distance = 0.1;
-  grasp.pre_grasp_approach.direction.header.frame_id = "tool0";
+  grasp.pre_grasp_approach.direction.header.frame_id = "s_model_tool0";
   grasp.pre_grasp_approach.direction.vector.x = 1.0;
 
   grasp.post_grasp_retreat.min_distance = 0.08;
