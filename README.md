@@ -33,4 +33,4 @@ the position of the object on the table.
 In the moment the place part is a stub.
 
 pick_and_place_test.cpp:  
-This picks up an imaginary object on the table using MoveIt's pick pipeline.
+This picks up an imaginary object on the table using MoveIt's pick pipeline and places it on the table using MovieIt's place pipeline.
