@@ -16,9 +16,9 @@ protected:
     ros::NodeHandle node_handle;
     ros::ServiceClient planning_scene_diff_client;
     ros::ServiceClient grasp_planning_service;
-    moveit::planning_interface::MoveGroup arm;
 
 public:
+    moveit::planning_interface::MoveGroup arm;
     PickAndPlaceTest() :
         arm("arm")
     {
@@ -55,14 +55,14 @@ public:
         geometry_msgs::PoseStamped pose;
         pose.header.frame_id = "table_top";
         pose.pose.orientation.w = 1;
-        pose.pose.position.x = -0.03;
+        pose.pose.position.x = -0.08;
         pose.pose.position.y = 0.2;
         pose.pose.position.z = 0.1;
         place_location.place_pose = pose;
 
         place_location.pre_place_approach.min_distance = 0.02;
         place_location.pre_place_approach.desired_distance = 0.1;
-        place_location.pre_place_approach.direction.header.frame_id = "tool0";
+        place_location.pre_place_approach.direction.header.frame_id = "s_model_tool0";
         place_location.pre_place_approach.direction.vector.x = 1.0;
 
         place_location.post_place_retreat.min_distance = 0.02;
@@ -158,9 +158,18 @@ int main(int argc, char** argv){
 
     moveit_msgs::CollisionObject object = testClass.spawnObject();
 
-    ROS_INFO("Pick Object");
-    testClass.executePick();
-    //testClass.executePick(object);
+    while(ros::ok())
+    {
+      ROS_INFO("Pick Object");
+      testClass.executePick();
+      //testClass.executePick(object);
 
+      ROS_INFO("Place Object");
+      testClass.executePlace();
+
+      ROS_INFO("Move to home");
+      testClass.arm.setNamedTarget("home");
+      testClass.arm.move();
+    }
     return 0;
 }
