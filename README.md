@@ -3,8 +3,6 @@ tams_ur5_pick_place
 
 This repository provides a demo for pick and place using tams' lab setup with the ur5.
 
-PLACE IS NOT YET SUPPORTED!
-
 ---
 
 __Usage__
@@ -23,14 +21,14 @@ These files also start the plan_grasps_service used by moveits pick.
 
 __Source files__
 
-plan_grasps_service.cpp:  
+plan_grasps_service.cpp:
 This is the implementation of the grasp planning service used by moveits pick. It provides a grasp from above the object.
 
-pick_pace_demo.cpp:  
+pick_place_demo.cpp:
 This demo is a loop where the robot uses moveits pick to grasp an object on the table lift it up and
 place it on the table again, then moveing back to the home position. During this movement, the user can change
 the position of the object on the table.
 In the moment the place part is a stub.
 
-pick_and_place_test.cpp:  
+pick_and_place_test.cpp:
 This picks up an imaginary object on the table using MoveIt's pick pipeline and places it on the table using MovieIt's place pipeline.
