@@ -15,6 +15,8 @@ find_package(Eigen REQUIRED)
 catkin_package(
 )
 
+add_compile_options(-std=c++11)
+
 include_directories(
   ${EIGEN_INCLUDE_DIRS}
   ${catkin_INCLUDE_DIRS}
