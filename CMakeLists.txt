@@ -10,7 +10,7 @@ find_package(catkin REQUIRED COMPONENTS
 )
 
 find_package(cmake_modules REQUIRED)
-find_package(Eigen REQUIRED)
+find_package(Eigen3 REQUIRED)
 
 catkin_package(
 )
