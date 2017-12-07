@@ -1,7 +1,7 @@
 #include <ros/ros.h>
 #include <moveit_msgs/GraspPlanning.h>
 
-#include <moveit/move_group_interface/move_group.h>
+#include <moveit/move_group_interface/move_group_interface.h>
 
 void jointValuesToJointTrajectory(std::map<std::string, double> target_values, ros::Duration duration, 
         trajectory_msgs::JointTrajectory &grasp_pose)
@@ -19,8 +19,8 @@ void jointValuesToJointTrajectory(std::map<std::string, double> target_values, r
 
 bool serviceCB(moveit_msgs::GraspPlanning::Request &req, moveit_msgs::GraspPlanning::Response &res)
 {
-  moveit::planning_interface::MoveGroup move_group(req.group_name);
-  moveit::planning_interface::MoveGroup gripper(move_group.getRobotModel()->getEndEffectors()[0]->getName());
+  moveit::planning_interface::MoveGroupInterface move_group(req.group_name);
+  moveit::planning_interface::MoveGroupInterface gripper(move_group.getRobotModel()->getEndEffectors()[0]->getName());
 
   moveit_msgs::Grasp grasp;
   grasp.id = "grasp";
