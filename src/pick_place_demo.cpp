@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#include <moveit/move_group_interface/move_group.h>
+#include <moveit/move_group_interface/move_group_interface.h>
 
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/ApplyPlanningScene.h>
@@ -17,8 +17,8 @@ protected:
     ros::ServiceClient planning_scene_diff_client;
     ros::ServiceClient get_planning_scene_client;
 
-    moveit::planning_interface::MoveGroup arm;
-    moveit::planning_interface::MoveGroup gripper;
+    moveit::planning_interface::MoveGroupInterface arm;
+    moveit::planning_interface::MoveGroupInterface gripper;
 
     tf::TransformListener tf_listener;
     tf::StampedTransform transform;
@@ -44,7 +44,7 @@ public:
 
     bool executePick(){
         arm.setSupportSurfaceName("table");
-        return arm.planGraspsAndPick("can");
+        return bool(arm.planGraspsAndPick("can"));
     }
 
     
@@ -154,14 +154,12 @@ public:
 
     bool placeStub(){
         arm.setPoseTarget(place_pose,"s_model_tool0");
-        return arm.move();
-        return false;
+        return bool(arm.move());
     }
 
     bool releaseObject(){
-
         gripper.setNamedTarget("open");
-        return gripper.move();
+        return bool(gripper.move());
     }
 
     void resetPlacePose(){

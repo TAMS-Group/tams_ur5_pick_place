@@ -1,7 +1,7 @@
 #include <iostream>
 #include <stdio.h>
 
-#include <moveit/move_group_interface/move_group.h>
+#include <moveit/move_group_interface/move_group_interface.h>
 
 #include <moveit_msgs/CollisionObject.h>
 #include <moveit_msgs/AttachedCollisionObject.h>
@@ -18,7 +18,7 @@ protected:
     ros::ServiceClient grasp_planning_service;
 
 public:
-    moveit::planning_interface::MoveGroup arm;
+    moveit::planning_interface::MoveGroupInterface arm;
     PickAndPlaceTest() :
         arm("arm")
     {
@@ -32,18 +32,18 @@ public:
     bool executePick(){
         arm.setPlanningTime(20.0);
         arm.setSupportSurfaceName("table");
-        return arm.planGraspsAndPick("object");
+        return bool(arm.planGraspsAndPick("object"));
     }
 
     bool executePick(moveit_msgs::CollisionObject &object){
         arm.setPlanningTime(20.0);
         arm.setSupportSurfaceName("table");
-        return arm.planGraspsAndPick(object);
+        return bool(arm.planGraspsAndPick(object));
     }
 
     void executePlace(){
 
-        moveit::planning_interface::MoveGroup gripper("gripper");
+        moveit::planning_interface::MoveGroupInterface gripper("gripper");
 
         std::vector<moveit_msgs::PlaceLocation> location;
 
