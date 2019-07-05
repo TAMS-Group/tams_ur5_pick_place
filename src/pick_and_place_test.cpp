@@ -8,8 +8,6 @@
 #include <moveit_msgs/ApplyPlanningScene.h>
 #include <moveit_msgs/Grasp.h>
 
-#include <manipulation_msgs/GraspPlanning.h>
-
 class PickAndPlaceTest{
 
 protected:
